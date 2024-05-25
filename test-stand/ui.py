@@ -247,7 +247,7 @@ class ControlDialog(QtWidgets.QDialog):
         self.rssi.setText("rssi: 0")
         self.counter = QtWidgets.QLabel()
         self.counter.setFont(font2)
-        self.counter.setText("rssi: 0")
+        self.counter.setText("T - 0")
         
 
         self.spacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding) 

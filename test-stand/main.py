@@ -47,17 +47,24 @@ class Main():
 
     def update_counter(self,data):
         self.ui.counter.setText("T" + data)
-        self.ui.counter.setText("T" + data)
+        self.control_dialog.counter.setText("T" + data)
 
     def update_text(self,data):
-        #self.ui.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
-        #self.ui.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[2]))) +" m/s</span></p></body></html>" )
-        #self.ui.impulse.setText("<html><head/><body><p>Impulse: <span style=\" color:#55ffff;\">"+ str(round(float(data[3]))) +" m/s</span></p></body></html>" )
-        #self.ui.burn_time.setText("<html><head/><body><p>Burn time: <span style=\" color:#55ffff;\">"+ str(round(float(data[5]))) +" m</span></p></body></html>" )
-        #self.ui.motor_desg.setText("<html><head/><body><p>Motor Desg: <span style=\" color:#55ffff;\">"+ str(data[6]) +" m</span></p></body></html>" )
-        #self.ui.rssi_val.setText("<html><head/><body><p>RSSI val: <span style=\" color:#55ffff;\">"+ str(round(float(data[7]))) +" m</span></p></body></html>" )
-        #self.ui.state.setText(str(data[8]))
-        pass
+        self.ui.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
+        self.ui.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[2]))) +" m/s</span></p></body></html>" )
+        self.ui.impulse.setText("<html><head/><body><p>Impulse: <span style=\" color:#55ffff;\">"+ str(round(float(data[3]))) +" m/s</span></p></body></html>" )
+        self.ui.burn_time.setText("<html><head/><body><p>Burn time: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m</span></p></body></html>" )
+        self.ui.motor_desg.setText("<html><head/><body><p>Motor Desg: <span style=\" color:#55ffff;\">"+ str(data[5]) +" m</span></p></body></html>" )
+        self.ui.rssi_val.setText("<html><head/><body><p>RSSI val: <span style=\" color:#55ffff;\">"+ str(round(float(data[4]))) +" m</span></p></body></html>" )
+        self.ui.state.setText(str(data[6]))
+
+        self.control_dialog.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
+        self.control_dialog.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[2]))) +" m/s</span></p></body></html>" )
+        self.control_dialog.impulse.setText("<html><head/><body><p>Impulse: <span style=\" color:#55ffff;\">"+ str(round(float(data[3]))) +" m/s</span></p></body></html>" )
+        self.control_dialog.burn.setText("<html><head/><body><p>Burn time: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m</span></p></body></html>" )
+        self.control_dialog.desg.setText("<html><head/><body><p>Motor Desg: <span style=\" color:#55ffff;\">"+ str(data[5]) +" m</span></p></body></html>" )
+        self.control_dialog.rssi.setText("<html><head/><body><p>RSSI val: <span style=\" color:#55ffff;\">"+ str(round(float(data[4]))) +" m</span></p></body></html>" )
+
 
 
 
