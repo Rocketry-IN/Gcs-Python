@@ -17,6 +17,9 @@ class Main():
         self.mainwin.setWindowTitle("Ground Control!! Sonus Go BRRR")
         self.control_dialog.show()
         global counter_running 
+        global state
+        state = "Idle"
+        self.elapsed_count =0
         counter_running = False
 
     def main(self):
@@ -24,7 +27,18 @@ class Main():
         self.t1.recieved.connect(self.update_text)
         self.t1.start()
 
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.show_elapsed)
+        self.timer.start(10)
+ 
         self.control_dialog.counter_button.clicked.connect(lambda: self.start_counter())
+
+    def show_elapsed(self):
+        if state == "Burn":
+            self.elapsed_count += 1
+        elif state == "Idle":
+            self.elapsed_count = 0
+        self.ui.rssi_val.setText("<html><head/><body><p>&nbsp; Elapsed: <span style=\" color:#55ffff;\">"+ str((self.elapsed_count)/100) +" s</span></p></body></html>" )
 
     def start_counter(self):
         global counter_running
@@ -50,38 +64,39 @@ class Main():
         self.control_dialog.counter.setText("T" + data)
 
     def update_text(self,data):
-        self.ui.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
-        self.ui.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[2]))) +" m/s</span></p></body></html>" )
-        self.ui.impulse.setText("<html><head/><body><p>Impulse: <span style=\" color:#55ffff;\">"+ str(round(float(data[3]))) +" m/s</span></p></body></html>" )
-        self.ui.burn_time.setText("<html><head/><body><p>Burn time: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m</span></p></body></html>" )
-        self.ui.motor_desg.setText("<html><head/><body><p>Motor Desg: <span style=\" color:#55ffff;\">"+ str(data[5]) +" m</span></p></body></html>" )
-        self.ui.rssi_val.setText("<html><head/><body><p>RSSI val: <span style=\" color:#55ffff;\">"+ str(round(float(data[4]))) +" m</span></p></body></html>" )
-        self.ui.state.setText(str(data[6]))
+        try:
+            self.ui.state.setText(state)
+            self.ui.thrust.setText("<html><head/><body><p>&nbsp; Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m/s</span></p></body></html>" )
+            self.ui.pressure.setText("<html><head/><body><p>&nbsp; Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
+            
 
-        self.control_dialog.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
-        self.control_dialog.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[2]))) +" m/s</span></p></body></html>" )
-        self.control_dialog.impulse.setText("<html><head/><body><p>Impulse: <span style=\" color:#55ffff;\">"+ str(round(float(data[3]))) +" m/s</span></p></body></html>" )
-        self.control_dialog.burn.setText("<html><head/><body><p>Burn time: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m</span></p></body></html>" )
-        self.control_dialog.desg.setText("<html><head/><body><p>Motor Desg: <span style=\" color:#55ffff;\">"+ str(data[5]) +" m</span></p></body></html>" )
-        self.control_dialog.rssi.setText("<html><head/><body><p>RSSI val: <span style=\" color:#55ffff;\">"+ str(round(float(data[4]))) +" m</span></p></body></html>" )
-
+            self.control_dialog.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m/s</span></p></body></html>" )
+            self.control_dialog.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
+        
+        except: 
+            self.ui.state.setText(state)
 
 
 
 class counter_thread(QtCore.QThread):
     global counter_running
+
     count_time = QtCore.pyqtSignal(str)
     def __init__(self,counter):
         super().__init__()
         self.counter = counter
-
     def run(self):
         while counter_running:
+            global state
             if self.counter > 0:
                 self.count_time.emit(" + "+ str(datetime.timedelta(seconds=(self.counter))))
             else:
                 self.count_time.emit(" - "+ str(datetime.timedelta(seconds=abs(self.counter))))  
-            time.sleep(1)            
+            if self.counter == 0:
+                state = "Burn"
+            elif self.counter < 0:
+                state = "Idle"
+            time.sleep(1)  
             self.counter += 1
 
 class update_thread(QtCore.QThread):
@@ -100,6 +115,6 @@ class update_thread(QtCore.QThread):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     gcs = Main()
-    gcs.mainwin.showMaximized()
+    gcs.mainwin.show()
     gcs.main()
     sys.exit(app.exec_())
