@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 import sys
 import time
 import datetime
-#from serial_man import read_serial, send_serial
+from serial_man import read_serial
 
 class Main():
     def __init__(self):
@@ -66,12 +66,12 @@ class Main():
     def update_text(self,data):
         try:
             self.ui.state.setText(state)
-            self.ui.thrust.setText("<html><head/><body><p>&nbsp; Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m/s</span></p></body></html>" )
-            self.ui.pressure.setText("<html><head/><body><p>&nbsp; Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
+            self.ui.thrust.setText("<html><head/><body><p>&nbsp; Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" N</span></p></body></html>" )
+            self.ui.pressure.setText("<html><head/><body><p>&nbsp; Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" psi</span></p></body></html>" )
             
 
-            self.control_dialog.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m/s</span></p></body></html>" )
-            self.control_dialog.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" m/s</span></p></body></html>" )
+            self.control_dialog.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" N</span></p></body></html>" )
+            self.control_dialog.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" psi</span></p></body></html>" )
         
         except: 
             self.ui.state.setText(state)
@@ -100,14 +100,13 @@ class counter_thread(QtCore.QThread):
             self.counter += 1
 
 class update_thread(QtCore.QThread):
-    recieved = QtCore.pyqtSignal(str)
+    recieved = QtCore.pyqtSignal(list)
     def __init__(self):
         super().__init__()
     
     def run(self):
         while True:
-            #data = read_serial()
-            data = None
+            data = read_serial()
             self.recieved.emit(data)
             time.sleep(0.01)
         
