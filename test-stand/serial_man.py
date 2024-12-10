@@ -1,6 +1,6 @@
 import serial
 
-#thrust, pressure
+#altitude , acceleration,  latitude, longitude , state , rssi 
 
 thrust_point = []
 avg_thrust = 0

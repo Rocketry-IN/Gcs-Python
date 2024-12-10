@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="newPrefix"/>
-  <qresource prefix="newPrefix">
-    <file>gcs.png</file>
-    <file>logo.webp</file>
-    <file>patch.png</file>
-    <file>sonus.png</file>
-  </qresource>
-</RCC>

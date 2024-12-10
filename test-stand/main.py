@@ -5,7 +5,9 @@ from PyQt5.QtGui import QIcon
 import sys
 import time
 import datetime
-from serial_man import read_serial
+#from serial_man import read_serial
+
+#chute state: 1 , 0 
 
 class Main():
     def __init__(self):
@@ -16,9 +18,10 @@ class Main():
         self.mainwin.setWindowIcon(QIcon("resources/patch.png"))
         self.mainwin.setWindowTitle("Ground Control!! Sonus Go BRRR")
         self.control_dialog.show()
+        self.chutes = 0
         global counter_running 
-        global state
-        state = "Idle"
+        global el_state
+        el_state = 0
         self.elapsed_count =0
         counter_running = False
 
@@ -34,11 +37,11 @@ class Main():
         self.control_dialog.counter_button.clicked.connect(lambda: self.start_counter())
 
     def show_elapsed(self):
-        if state == "Burn":
+        if el_state == 1:
             self.elapsed_count += 1
-        elif state == "Idle":
+        elif el_state == 0:
             self.elapsed_count = 0
-        self.ui.rssi_val.setText("<html><head/><body><p>&nbsp; Elapsed: <span style=\" color:#55ffff;\">"+ str((self.elapsed_count)/100) +" s</span></p></body></html>" )
+        self.ui.elapsed.setText("<html><head/><body><p>&nbsp; Elapsed: <span style=\" color:#55ffff;\">"+ str((self.elapsed_count)/100) +" s</span></p></body></html>" )
 
     def start_counter(self):
         global counter_running
@@ -64,17 +67,34 @@ class Main():
         self.control_dialog.counter.setText("T" + data)
 
     def update_text(self,data):
-        try:
-            self.ui.state.setText(state)
-            self.ui.thrust.setText("<html><head/><body><p>&nbsp; Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" N</span></p></body></html>" )
-            self.ui.pressure.setText("<html><head/><body><p>&nbsp; Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" psi</span></p></body></html>" )
-            
 
-            self.control_dialog.thrust.setText("<html><head/><body><p>Thrust: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" N</span></p></body></html>" )
-            self.control_dialog.pressure.setText("<html><head/><body><p>Pressure: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" psi</span></p></body></html>" )
+        try:
+            if el_state == 1:
+                self.ui.state.setText("Ascent")
+            elif el_state == 0:
+                if data[3] == 1:
+                    self.chutes = 1
+                    self.ui.state.setText("Under Chutes")
+                else:
+                    self.ui.state.setText("Idle")
+            self.ui.altitude.setText("<html><head/><body><p>&nbsp; altitude: <span style=\" color:#55ffff;\">"+ str(round(float(data[0]))) +" m</span></p></body></html>" )
+            self.ui.lat.setText("<html><head/><body><p>&nbsp; latitude: <span style=\" color:#55ffff;\">"+ str(round(float(data[1]))) +" deg</span></p></body></html>" )
+            self.ui.accel.setText( "<html><head/><body><p>&nbsp; acceleration: <span style=\" color:#55ffff;\">0 m/s2</span></p></body></html>")
+            self.ui.lon.setText("MainWindow", "<html><head/><body><p>&nbsp; longitude: <span style=\" color:#55ffff;\">0 deg</span></p></body></html>")
+
+            self.control_dialog.altitude.setText("altitude:" + str(round(float(data[0]))))
+            self.control_dialog.accel.setText("Pressure: "+ str(round(float(data[1]))))
         
         except: 
-            self.ui.state.setText(state)
+            #self.ui.state.setText(str(el_state))
+            #print(el_state)
+            if el_state == 1:
+                self.ui.state.setText("Ascent")
+            elif el_state == 0:
+                if self.chutes ==1:
+                    self.ui.state.setText("Under Chutes")
+                else: 
+                    self.ui.state.setText("Idle")
 
 
 
@@ -87,15 +107,15 @@ class counter_thread(QtCore.QThread):
         self.counter = counter
     def run(self):
         while counter_running:
-            global state
+            global el_state
             if self.counter > 0:
                 self.count_time.emit(" + "+ str(datetime.timedelta(seconds=(self.counter))))
             else:
                 self.count_time.emit(" - "+ str(datetime.timedelta(seconds=abs(self.counter))))  
             if self.counter == 0:
-                state = "Burn"
+                el_state = 1
             elif self.counter < 0:
-                state = "Idle"
+                el_state = 0
             time.sleep(1)  
             self.counter += 1
 
@@ -106,7 +126,7 @@ class update_thread(QtCore.QThread):
     
     def run(self):
         while True:
-            data = read_serial()
+            data = [0] #read_serial()
             self.recieved.emit(data)
             time.sleep(0.01)
         
