@@ -86,8 +86,6 @@ class Main():
             self.control_dialog.accel.setText("Pressure: "+ str(round(float(data[1]))))
         
         except: 
-            #self.ui.state.setText(str(el_state))
-            #print(el_state)
             if el_state == 1:
                 self.ui.state.setText("Ascent")
             elif el_state == 0:
